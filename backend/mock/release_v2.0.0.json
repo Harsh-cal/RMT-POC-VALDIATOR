@@ -1,0 +1,11 @@
+{
+  "release_name": "Release_v2.0.0",
+  "version": "2.0.0",
+  "target_fleet": "Boeing 737",
+  "containers": [
+    { "name": "IFE_Software", "version": "2.0.0" },
+    { "name": "Legacy_Display_Driver", "version": "1.0.0" },
+    { "name": "Navigation_Module", "version": "2.0.0" },
+    { "name": "Navigation_Module", "version": "2.1.0" }
+  ]
+}

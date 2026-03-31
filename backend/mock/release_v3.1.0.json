@@ -1,0 +1,18 @@
+{
+  "release_name": "Release_v3.1.0",
+  "version": "3.1.0",
+  "target_fleet": "Boeing 737",
+  "containers": [
+    {
+      "name": "IFE_Software",
+      "version": "3.1.0",
+      "dependencies": [
+        { "name": "Navigation_Module", "required_version": ">=4.0.0" }
+      ]
+    },
+    {
+      "name": "Navigation_Module",
+      "version": "3.5.0"
+    }
+  ]
+}

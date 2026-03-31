@@ -1,0 +1,22 @@
+{
+  "release_name": "Release_v4.0.0",
+  "version": "4.0.0",
+  "target_fleet": "Airbus A320",
+  "containers": [
+    {
+      "name": "IFE_Software",
+      "version": "4.0.0",
+      "dependencies": [
+        { "name": "Navigation_Module", "required_version": ">=4.0.0" }
+      ]
+    },
+    {
+      "name": "Navigation_Module",
+      "version": "4.1.0"
+    },
+    {
+      "name": "Cabin_Connectivity_Service",
+      "version": "2.0.0"
+    }
+  ]
+}
