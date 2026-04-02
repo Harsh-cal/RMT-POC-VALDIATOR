@@ -54,6 +54,30 @@ func buildRecommendation(issue models.Issue) *models.Recommendation {
 			Action:    fmt.Sprintf("Remove one of the incompatible containers or select compatible versions of '%s'", issue.Container),
 		}
 
+	case "duplicate_part_number":
+		return &models.Recommendation{
+			IssueType: "duplicate_part_number",
+			Action:    fmt.Sprintf("Ensure part number '%s' is unique across release containers", issue.Container),
+		}
+
+	case "system_incompatible":
+		return &models.Recommendation{
+			IssueType: "system_incompatible",
+			Action:    fmt.Sprintf("Align '%s' with aircraft-supported system type before deployment", issue.Container),
+		}
+
+	case "version_conflict":
+		return &models.Recommendation{
+			IssueType: "version_conflict",
+			Action:    fmt.Sprintf("Upgrade '%s' to match or exceed currently installed aircraft version", issue.Container),
+		}
+
+	case "maturity_risk":
+		return &models.Recommendation{
+			IssueType: "maturity_risk",
+			Action:    fmt.Sprintf("Use a stable build for '%s' or complete extended certification testing", issue.Container),
+		}
+
 	default:
 		return nil
 	}

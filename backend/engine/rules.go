@@ -27,6 +27,22 @@ func DetectIssues(ctx *models.ValidationContext) []models.Issue {
 	comboIssues := checkUnsupportedCombos(ctx)
 	issues = append(issues, comboIssues...)
 
+	// Check for duplicate part numbers
+	partNumberIssues := checkDuplicatePartNumbers(ctx)
+	issues = append(issues, partNumberIssues...)
+
+	// Check system compatibility against aircraft
+	compatibilityIssues := checkSystemCompatibility(ctx)
+	issues = append(issues, compatibilityIssues...)
+
+	// Check version conflicts against currently installed software
+	stateConflictIssues := checkAircraftStateVersionConflicts(ctx)
+	issues = append(issues, stateConflictIssues...)
+
+	// Add maturity-based risk signals
+	maturityIssues := checkMaturityRisk(ctx)
+	issues = append(issues, maturityIssues...)
+
 	return issues
 }
 
@@ -137,6 +153,111 @@ func checkUnsupportedCombos(ctx *models.ValidationContext) []models.Issue {
 				Severity:  "HIGH",
 				Container: pair.Container2,
 				Message:   fmt.Sprintf("'%s' and '%s' are incompatible and cannot be deployed together", pair.Container1, pair.Container2),
+			})
+		}
+	}
+
+	return issues
+}
+
+// checkDuplicatePartNumbers detects duplicate part numbers in release payload
+func checkDuplicatePartNumbers(ctx *models.ValidationContext) []models.Issue {
+	var issues []models.Issue
+	seen := make(map[string]int)
+
+	for _, container := range ctx.Request.Containers {
+		if strings.TrimSpace(container.PartNumber) == "" {
+			continue
+		}
+		seen[container.PartNumber]++
+	}
+
+	for partNumber, count := range seen {
+		if count > 1 {
+			issues = append(issues, models.Issue{
+				Type:      "duplicate_part_number",
+				Severity:  "HIGH",
+				Container: partNumber,
+				Message:   fmt.Sprintf("Part number '%s' appears %d times in release", partNumber, count),
+			})
+		}
+	}
+
+	return issues
+}
+
+// checkSystemCompatibility validates whether container system matches aircraft supported system
+func checkSystemCompatibility(ctx *models.ValidationContext) []models.Issue {
+	var issues []models.Issue
+	aircraftSystem := strings.TrimSpace(strings.ToLower(ctx.Request.Aircraft.System))
+	if aircraftSystem == "" {
+		return issues
+	}
+
+	for _, container := range ctx.Request.Containers {
+		systemType := strings.TrimSpace(strings.ToLower(container.SystemType))
+		if systemType == "" {
+			continue
+		}
+
+		if systemType != aircraftSystem {
+			issues = append(issues, models.Issue{
+				Type:      "system_incompatible",
+				Severity:  "HIGH",
+				Container: container.Name,
+				Message:   fmt.Sprintf("Container '%s' system '%s' is incompatible with aircraft system '%s'", container.Name, container.SystemType, ctx.Request.Aircraft.System),
+			})
+		}
+	}
+
+	return issues
+}
+
+// checkAircraftStateVersionConflicts catches downgrade or conflict vs installed software on aircraft
+func checkAircraftStateVersionConflicts(ctx *models.ValidationContext) []models.Issue {
+	var issues []models.Issue
+	if len(ctx.Request.Aircraft.CurrentSoftware) == 0 {
+		return issues
+	}
+
+	for _, container := range ctx.Request.Containers {
+		installed, exists := ctx.Request.Aircraft.CurrentSoftware[container.Name]
+		if !exists || strings.TrimSpace(installed.Version) == "" {
+			continue
+		}
+
+		if compareVersions(container.Version, installed.Version) < 0 {
+			issues = append(issues, models.Issue{
+				Type:      "version_conflict",
+				Severity:  "HIGH",
+				Container: container.Name,
+				Message:   fmt.Sprintf("Release version %s for '%s' is older than installed version %s on aircraft", container.Version, container.Name, installed.Version),
+			})
+		}
+	}
+
+	return issues
+}
+
+// checkMaturityRisk adds risk signals based on container maturity level
+func checkMaturityRisk(ctx *models.ValidationContext) []models.Issue {
+	var issues []models.Issue
+
+	for _, container := range ctx.Request.Containers {
+		switch strings.ToLower(strings.TrimSpace(container.Maturity)) {
+		case "experimental":
+			issues = append(issues, models.Issue{
+				Type:      "maturity_risk",
+				Severity:  "HIGH",
+				Container: container.Name,
+				Message:   fmt.Sprintf("Container '%s' is marked experimental and is not recommended for deployment", container.Name),
+			})
+		case "beta":
+			issues = append(issues, models.Issue{
+				Type:      "maturity_risk",
+				Severity:  "MEDIUM",
+				Container: container.Name,
+				Message:   fmt.Sprintf("Container '%s' is marked beta; additional validation is recommended", container.Name),
 			})
 		}
 	}

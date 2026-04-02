@@ -36,3 +36,14 @@ func CalculateRisk(issues []models.Issue) string {
 		return "SAFE"
 	}
 }
+
+// CalculateStatus returns final release approval status based on GO/NO-GO checks.
+// FAILED if any HIGH severity issue exists; otherwise PASS.
+func CalculateStatus(issues []models.Issue) string {
+	for _, issue := range issues {
+		if issue.Severity == "HIGH" {
+			return "FAILED"
+		}
+	}
+	return "PASS"
+}

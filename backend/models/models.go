@@ -9,6 +9,7 @@ type ValidateRequest struct {
 	ReleaseName string      `json:"release_name" binding:"required"`
 	Version     string      `json:"version" binding:"required"`
 	TargetFleet string      `json:"target_fleet" binding:"required"`
+	Aircraft    Aircraft    `json:"aircraft" binding:"required"`
 	Containers  []Container `json:"containers" binding:"required"`
 }
 
@@ -16,41 +17,90 @@ type ValidateRequest struct {
 type Container struct {
 	Name         string       `json:"name" binding:"required"`
 	Version      string       `json:"version" binding:"required"`
+	PartNumber   string       `json:"partNumber" binding:"required"`
+	SystemType   string       `json:"systemType" binding:"required"`
+	Maturity     string       `json:"maturity"` // experimental, beta, stable
 	Dependencies []Dependency `json:"dependencies"`
 	IsOptional   bool         `json:"is_optional"`
 }
 
+// Aircraft represents the target aircraft state for validation
+type Aircraft struct {
+	TailNumber      string                    `json:"tailNumber" binding:"required"`
+	Type            string                    `json:"type" binding:"required"`
+	System          string                    `json:"system" binding:"required"`
+	CurrentSoftware map[string]InstalledImage `json:"currentSoftware"`
+}
+
+// InstalledImage represents currently installed container metadata on aircraft
+type InstalledImage struct {
+	Version    string `json:"version"`
+	PartNumber string `json:"partNumber"`
+}
+
 // Dependency represents a container dependency constraint
 type Dependency struct {
-	Name             string `json:"name" binding:"required"`
-	RequiredVersion  string `json:"required_version" binding:"required"`
+	Name            string `json:"name" binding:"required"`
+	RequiredVersion string `json:"required_version" binding:"required"`
 }
 
 // ValidationResult is the output of a validation run
 type ValidationResult struct {
-	ReleaseID   string           `json:"release_id"`
-	ReleaseName string           `json:"release_name"`
-	Version     string           `json:"version"`
-	TargetFleet string           `json:"target_fleet"`
-	Risk        string           `json:"risk"` // HIGH, MEDIUM, LOW, SAFE
-	Issues      []Issue          `json:"issues"`
-	Insight     string           `json:"insight"`
-	Recommendations []Recommendation `json:"recommendations"`
-	ValidatedAt time.Time        `json:"validated_at"`
+	ReleaseID       string           `json:"release_id" bson:"release_id"`
+	ReleaseName     string           `json:"release_name" bson:"release_name"`
+	Version         string           `json:"version" bson:"version"`
+	TargetFleet     string           `json:"target_fleet" bson:"target_fleet"`
+	Risk            string           `json:"risk" bson:"risk"`     // HIGH, MEDIUM, LOW, SAFE
+	Status          string           `json:"status" bson:"status"` // PASS / FAILED
+	Issues          []Issue          `json:"issues" bson:"issues"`
+	Insight         Insight          `json:"insight" bson:"insight"`
+	Recommendations []Recommendation `json:"recommendations" bson:"recommendations"`
+	ValidatedAt     time.Time        `json:"validated_at" bson:"validated_at"`
+}
+
+// Insight represents structured AI output.
+type Insight struct {
+	Summary string `json:"summary" bson:"summary"`
+	Impact  string `json:"impact" bson:"impact"`
+}
+
+// ChatMessage represents one chat turn.
+type ChatMessage struct {
+	Role    string `json:"role" binding:"required"`
+	Content string `json:"content" binding:"required"`
+}
+
+// ValidationChatRequest is the payload for the validation chat endpoint.
+type ValidationChatRequest struct {
+	Question string           `json:"question" binding:"required"`
+	Result   ValidationResult `json:"result" binding:"required"`
+	History  []ChatMessage    `json:"history"`
+}
+
+// ValidationChatResponse is the response for validation chat endpoint.
+type ValidationChatResponse struct {
+	Answer string `json:"answer"`
+}
+
+// ExportRequest is the payload for exporting validation reports.
+type ExportRequest struct {
+	ReleaseID   string `json:"release_id"`
+	ReleaseName string `json:"release_name"`
+	Format      string `json:"format" binding:"required"`
 }
 
 // Issue represents a detected validation issue
 type Issue struct {
-	Type      string `json:"type"` // version_mismatch, missing_dependency, duplicate, unsupported_combo
-	Severity  string `json:"severity"` // HIGH, MEDIUM, LOW
-	Container string `json:"container"`
-	Message   string `json:"message"`
+	Type      string `json:"type" bson:"type"`         // version_mismatch, missing_dependency, duplicate, unsupported_combo
+	Severity  string `json:"severity" bson:"severity"` // HIGH, MEDIUM, LOW
+	Container string `json:"container" bson:"container"`
+	Message   string `json:"message" bson:"message"`
 }
 
 // Recommendation represents a fix action for an issue
 type Recommendation struct {
-	IssueType string `json:"issue_type"`
-	Action    string `json:"action"`
+	IssueType string `json:"issue_type" bson:"issue_type"`
+	Action    string `json:"action" bson:"action"`
 }
 
 // --- Internal Engine Models ---
@@ -60,7 +110,8 @@ type ValidationContext struct {
 	Request   *ValidateRequest
 	Issues    []Issue
 	Risk      string
-	Insight   string
+	Status    string
+	Insight   Insight
 	ReleaseID string
 }
 
@@ -93,5 +144,6 @@ type MockRelease struct {
 	ReleaseName string      `json:"release_name"`
 	Version     string      `json:"version"`
 	TargetFleet string      `json:"target_fleet"`
+	Aircraft    Aircraft    `json:"aircraft"`
 	Containers  []Container `json:"containers"`
 }

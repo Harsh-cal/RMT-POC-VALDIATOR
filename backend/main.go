@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/harsh-cal/rmt-poc-validator/engine"
 	"github.com/harsh-cal/rmt-poc-validator/handlers"
@@ -56,8 +57,12 @@ func main() {
 func startServer() {
 	router := gin.Default()
 
+	router.Use(cors.Default())
+
 	// Routes
 	router.POST("/api/dev/v1/validate", handlers.ValidateHandler)
+	router.POST("/api/dev/v1/validate/chat", handlers.ChatHandler)
+	router.POST("/api/dev/v1/validate/export", handlers.ExportValidationHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -107,6 +112,7 @@ func validateFromMockRelease(releaseName string, outputFormat string) {
 				ReleaseName: mock.ReleaseName,
 				Version:     mock.Version,
 				TargetFleet: mock.TargetFleet,
+				Aircraft:    mock.Aircraft,
 				Containers:  mock.Containers,
 			}
 			break
@@ -137,6 +143,7 @@ func performValidation(req *models.ValidateRequest) *models.ValidationResult {
 	// Run validation pipeline
 	ctx.Issues = engine.DetectIssues(ctx)
 	ctx.Risk = engine.CalculateRisk(ctx.Issues)
+	ctx.Status = engine.CalculateStatus(ctx.Issues)
 	recommendations := engine.GenerateRecommendations(ctx.Issues)
 
 	releaseInfo := req.ReleaseName + " v" + req.Version + " for " + req.TargetFleet
@@ -148,6 +155,7 @@ func performValidation(req *models.ValidateRequest) *models.ValidationResult {
 		Version:         req.Version,
 		TargetFleet:     req.TargetFleet,
 		Risk:            ctx.Risk,
+		Status:          ctx.Status,
 		Issues:          ctx.Issues,
 		Insight:         insight,
 		Recommendations: recommendations,
@@ -161,9 +169,11 @@ func outputResult(result *models.ValidationResult, format string) {
 		fmt.Println(string(data))
 	} else if format == "text" {
 		fmt.Printf("Release: %s v%s\n", result.ReleaseName, result.Version)
+		fmt.Printf("Status: %s\n", result.Status)
 		fmt.Printf("Risk: %s\n", result.Risk)
 		fmt.Printf("Issues: %d\n", len(result.Issues))
-		fmt.Printf("Insight: %s\n", result.Insight)
+		fmt.Printf("Insight Summary: %s\n", result.Insight.Summary)
+		fmt.Printf("Insight Impact: %s\n", result.Insight.Impact)
 	}
 }
 

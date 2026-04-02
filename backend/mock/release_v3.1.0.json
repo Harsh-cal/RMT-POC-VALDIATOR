@@ -2,17 +2,42 @@
   "release_name": "Release_v3.1.0",
   "version": "3.1.0",
   "target_fleet": "Boeing 737",
+  "aircraft": {
+    "tailNumber": "N7338",
+    "type": "737-800",
+    "system": "IFE",
+    "currentSoftware": {
+      "IFE_Software": {
+        "version": "3.0.0",
+        "partNumber": "PN-IFE-300"
+      },
+      "Navigation_Module": {
+        "version": "3.5.0",
+        "partNumber": "PN-NAV-350"
+      }
+    }
+  },
   "containers": [
     {
       "name": "IFE_Software",
       "version": "3.1.0",
+      "partNumber": "PN-IFE-310",
+      "systemType": "IFE",
+      "maturity": "stable",
       "dependencies": [
-        { "name": "Navigation_Module", "required_version": ">=4.0.0" }
+        {
+          "name": "Navigation_Module",
+          "required_version": ">=3.5.0"
+        }
       ]
     },
     {
       "name": "Navigation_Module",
-      "version": "3.5.0"
+      "version": "3.8.0",
+      "partNumber": "PN-NAV-380",
+      "systemType": "IFE",
+      "maturity": "stable",
+      "dependencies": []
     }
   ]
 }
