@@ -2,6 +2,7 @@ import { useState } from "react";
 import ReleaseSelector from "./components/ReleaseSelector";
 import ResultCard from "./components/ResultCard";
 import FileUploadModal from "./components/FileUploadModal";
+import ReleaseHistoryDashboard from "./components/ReleaseHistoryDashboard";
 import { validateRelease } from "./services/api";
 
 export default function App() {
@@ -9,6 +10,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [releaseName, setReleaseName] = useState("");
+  const [validationTarget, setValidationTarget] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showModal, setShowModal] = useState(false);
 
@@ -17,6 +19,12 @@ export default function App() {
     setError(null);
     setResult(null);
     setReleaseName(payload.release_name);
+    setValidationTarget({
+      targetFleet: payload.target_fleet || "Unknown",
+      tailNumber: payload.aircraft?.tailNumber || "Unknown",
+      aircraftType: payload.aircraft?.type || "Unknown",
+      aircraftSystem: payload.aircraft?.system || "Unknown",
+    });
     setShowModal(false);
     try {
       const data = await validateRelease(payload);
@@ -31,6 +39,7 @@ export default function App() {
   const handleRevalidate = () => {
     setResult(null);
     setError(null);
+    setValidationTarget(null);
   };
 
   return (
@@ -51,7 +60,7 @@ export default function App() {
               Smart Content Validator <span className="text-gray-300 font-normal">(POC)</span>
             </span>
             <nav className="hidden md:flex items-center gap-1">
-              {["Dashboard", "History", "Settings"].map((tab) => (
+              {["Dashboard", "History"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
@@ -86,6 +95,7 @@ export default function App() {
             <nav className="space-y-1">
               {[
                 { icon: "◈", label: "Validation Results", key: "dashboard" },
+                { icon: "📊", label: "Release History",   key: "history"   },
                 { icon: "↓", label: "Export",        key: "export"    },
               ].map((item) => (
                 <button
@@ -136,9 +146,14 @@ export default function App() {
             <ResultCard
               result={result}
               releaseName={releaseName}
+              validationTarget={validationTarget}
               onRevalidate={handleRevalidate}
               activeTab={activeTab}
             />
+          )}
+
+          {activeTab === "history" && (
+            <ReleaseHistoryDashboard />
           )}
         </main>
       </div>

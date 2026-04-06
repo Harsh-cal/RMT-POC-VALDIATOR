@@ -64,6 +64,12 @@ func startServer() {
 	router.POST("/api/dev/v1/validate/chat", handlers.ChatHandler)
 	router.POST("/api/dev/v1/validate/export", handlers.ExportValidationHandler)
 
+	// History & Analytics Routes
+	router.GET("/api/dev/v1/releases/history", handlers.HistoryHandler)
+	router.GET("/api/dev/v1/releases/trends", handlers.TrendHandler)
+	router.GET("/api/dev/v1/issues/recurring", handlers.IssuesHandler)
+	router.GET("/api/dev/v1/releases/:id1/compare/:id2", handlers.CompareHandler)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

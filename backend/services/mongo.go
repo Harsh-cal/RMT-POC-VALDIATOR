@@ -53,7 +53,44 @@ func normalizeValidationResultDoc(doc bson.M) bson.M {
 		doc["recommendations"] = rawRecs
 	}
 
+	// Normalize insight: if stored as a plain string, convert to object
+	if insightVal, ok := doc["insight"]; ok {
+		if s, isStr := insightVal.(string); isStr {
+			doc["insight"] = bson.M{"summary": s, "impact": ""}
+		}
+	}
+
 	return doc
+}
+
+// decodeCursorToValidationResults decodes a cursor into ValidationResult slice,
+// applying normalization to handle legacy document shapes.
+func decodeCursorToValidationResults(cursor *mongo.Cursor, ctx context.Context) ([]models.ValidationResult, error) {
+	defer cursor.Close(ctx)
+
+	var results []models.ValidationResult
+	for cursor.Next(ctx) {
+		var doc bson.M
+		if err := cursor.Decode(&doc); err != nil {
+			return nil, err
+		}
+		doc = normalizeValidationResultDoc(doc)
+
+		raw, err := bson.Marshal(doc)
+		if err != nil {
+			return nil, err
+		}
+
+		var result models.ValidationResult
+		if err := bson.Unmarshal(raw, &result); err != nil {
+			return nil, err
+		}
+		results = append(results, result)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 var MongoClient *mongo.Client

@@ -259,6 +259,13 @@ func checkMaturityRisk(ctx *models.ValidationContext) []models.Issue {
 				Container: container.Name,
 				Message:   fmt.Sprintf("Container '%s' is marked beta; additional validation is recommended", container.Name),
 			})
+		case "candidate", "preview", "rc":
+			issues = append(issues, models.Issue{
+				Type:      "maturity_risk",
+				Severity:  "LOW",
+				Container: container.Name,
+				Message:   fmt.Sprintf("Container '%s' is pre-release (%s); monitor closely after deployment", container.Name, container.Maturity),
+			})
 		}
 	}
 

@@ -1,0 +1,59 @@
+{
+  "release_name": "Mixed_Severity_Test",
+  "version": "1.0.0",
+  "target_fleet": "777",
+  "aircraft": {
+    "tailNumber": "N12345",
+    "type": "Boeing 777",
+    "system": "Flight Management",
+    "currentSoftware": {
+      "Navigation_Module": {
+        "version": "2.5.0",
+        "partNumber": "PN-NAV-200"
+      },
+      "IFE_Software": {
+        "version": "1.0.0",
+        "partNumber": "PN-IFE-100"
+      }
+    }
+  },
+  "containers": [
+    {
+      "name": "Navigation_Module",
+      "version": "3.0.0",
+      "partNumber": "PN-NAV-300",
+      "systemType": "Navigation",
+      "maturity": "experimental",
+      "isOptional": false,
+      "dependencies": [
+        {
+          "name": "GPS_Firmware",
+          "required_version": "2.0.0"
+        }
+      ]
+    },
+    {
+      "name": "IFE_Software",
+      "version": "2.0.0",
+      "partNumber": "PN-IFE-200",
+      "systemType": "Entertainment",
+      "maturity": "beta",
+      "isOptional": false,
+      "dependencies": []
+    },
+    {
+      "name": "Flight_Control_UI",
+      "version": "1.0.0",
+      "partNumber": "PN-FCU-100",
+      "systemType": "Control",
+      "maturity": "candidate",
+      "isOptional": false,
+      "dependencies": [
+        {
+          "name": "Deprecated_CanBus_Adapter",
+          "required_version": "1.5.0"
+        }
+      ]
+    }
+  ]
+}

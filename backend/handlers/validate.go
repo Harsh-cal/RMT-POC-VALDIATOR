@@ -68,6 +68,15 @@ func ValidateHandler(c *gin.Context) {
 		fmt.Printf("SaveValidationResult failed for release_id=%s: %v\n", releaseID, err)
 	}
 
+	// Send Telegram alert asynchronously using an immutable snapshot
+	resultSnapshot := result
+	releaseNameSnapshot := req.ReleaseName
+	go func(snapshot models.ValidationResult, releaseName string, rid string) {
+		if err := services.SendValidationAlert(&snapshot, releaseName); err != nil {
+			fmt.Printf("Telegram alert failed for release_id=%s: %v\n", rid, err)
+		}
+	}(resultSnapshot, releaseNameSnapshot, releaseID)
+
 	// Return response
 	c.JSON(http.StatusOK, result)
 }

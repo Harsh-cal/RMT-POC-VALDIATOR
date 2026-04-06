@@ -21,7 +21,7 @@ const issueTypeLabel = {
   maturity_risk:         "Maturity Risk",
 };
 
-export default function ResultCard({ result, releaseName, onRevalidate, activeTab }) {
+export default function ResultCard({ result, releaseName, validationTarget, onRevalidate, activeTab }) {
   const high   = result.issues?.filter(i => i.severity === "HIGH").length || 0;
   const medium = result.issues?.filter(i => i.severity === "MEDIUM").length || 0;
   const low    = result.issues?.filter(i => i.severity === "LOW").length || 0;
@@ -77,6 +77,21 @@ export default function ResultCard({ result, releaseName, onRevalidate, activeTa
             )}
           </div>
         </div>
+
+        {validationTarget && (
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+              <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-1">Affected Tail Number</p>
+              <p className="text-sm font-bold text-gray-800">{validationTarget.tailNumber}</p>
+              <p className="text-xs text-gray-500 mt-0.5">Aircraft: {validationTarget.aircraftType}</p>
+            </div>
+            <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+              <p className="text-xs font-bold tracking-widest text-blue-400 uppercase mb-1">Affected Fleet / System</p>
+              <p className="text-sm font-bold text-blue-700">{validationTarget.targetFleet}</p>
+              <p className="text-xs text-blue-600 mt-0.5">System: {validationTarget.aircraftSystem}</p>
+            </div>
+          </div>
+        )}
 
         {/* Stat pills */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
