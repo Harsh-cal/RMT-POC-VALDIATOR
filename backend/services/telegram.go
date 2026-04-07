@@ -49,7 +49,23 @@ func SendValidationAlert(result *models.ValidationResult, releaseName string) er
 	messageText.WriteString(fmt.Sprintf("<b>ID:</b> <code>%s</code>\n", result.ReleaseID))
 	messageText.WriteString(fmt.Sprintf("<b>Status:</b> %s %s\n", statusIcon, result.Status))
 	messageText.WriteString(fmt.Sprintf("<b>Risk Level:</b> %s %s\n", riskColor, result.Risk))
-	messageText.WriteString(fmt.Sprintf("<b>Issues Found:</b> %d\n", len(result.Issues)))
+
+	// Add Fleet & Targeting context
+	messageText.WriteString("\n<b>📍 Target Information:</b>\n")
+	if result.TargetFleet != "" {
+		messageText.WriteString(fmt.Sprintf("• <b>Fleet:</b> %s\n", result.TargetFleet))
+	}
+	if result.TailNumber != "" {
+		messageText.WriteString(fmt.Sprintf("• <b>Tail Number:</b> %s\n", result.TailNumber))
+	}
+	if result.AircraftType != "" {
+		messageText.WriteString(fmt.Sprintf("• <b>Aircraft Type:</b> %s\n", result.AircraftType))
+	}
+	if result.AircraftSystem != "" {
+		messageText.WriteString(fmt.Sprintf("• <b>System:</b> %s\n", result.AircraftSystem))
+	}
+
+	messageText.WriteString(fmt.Sprintf("\n<b>Issues Found:</b> %d\n", len(result.Issues)))
 
 	if len(result.Issues) > 0 {
 		messageText.WriteString("\n<b>All Issues:</b>\n")

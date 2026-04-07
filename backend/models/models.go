@@ -50,6 +50,9 @@ type ValidationResult struct {
 	ReleaseName     string           `json:"release_name" bson:"release_name"`
 	Version         string           `json:"version" bson:"version"`
 	TargetFleet     string           `json:"target_fleet" bson:"target_fleet"`
+	TailNumber      string           `json:"tail_number" bson:"tail_number"`
+	AircraftType    string           `json:"aircraft_type" bson:"aircraft_type"`
+	AircraftSystem  string           `json:"aircraft_system" bson:"aircraft_system"`
 	Risk            string           `json:"risk" bson:"risk"`     // HIGH, MEDIUM, LOW, SAFE
 	Status          string           `json:"status" bson:"status"` // PASS / FAILED
 	Issues          []Issue          `json:"issues" bson:"issues"`
