@@ -20,13 +20,13 @@ export default function IssueRecurrenceChart({ data }) {
   const maxCount = topIssues[0]?.count || 1;
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-6">
       {topIssues.map((issue, idx) => {
         const barWidth = (issue.count / maxCount) * 100;
         const displayLabel = issueTypeLabel[issue.type] || issue.type;
 
         return (
-          <div key={idx} className="space-y-1">
+          <div key={idx} className="space-y-2 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold text-gray-700 truncate">
                 {displayLabel}
@@ -35,15 +35,12 @@ export default function IssueRecurrenceChart({ data }) {
                 {issue.count}x
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
-                className="bg-orange-500 h-2 rounded-full transition-all"
+                className="bg-orange-500 h-2.5 rounded-full transition-all"
                 style={{ width: `${barWidth}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400">
-              Fix Rate: {(issue.fix_rate * 100).toFixed(0)}%
-            </p>
           </div>
         );
       })}

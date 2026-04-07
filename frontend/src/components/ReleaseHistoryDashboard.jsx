@@ -59,7 +59,9 @@ export default function ReleaseHistoryDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-black text-gray-900">📊 Release History</h1>
-            <p className="text-gray-500 text-sm mt-1">Timeline view & trend analysis</p>
+            <p className="text-gray-500 text-sm mt-1">
+              Day-wise validation health with readable trend lines and issue patterns
+            </p>
           </div>
 
           {/* Days Filter */}
@@ -85,7 +87,10 @@ export default function ReleaseHistoryDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pass/Fail Trend */}
           <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Pass/Fail Trend</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Daily Pass vs Fail</h2>
+            <p className="text-xs text-gray-500 mb-4">
+              Simple day-wise view of validations, with clear pass and failure counts.
+            </p>
             <PassFailChart data={trends} />
           </div>
 
@@ -96,9 +101,9 @@ export default function ReleaseHistoryDashboard() {
           </div>
         </div>
 
-        {/* Timeline View */}
+        {/* Recent Releases */}
         <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Timeline View</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Releases</h2>
           <TimelineView releases={releases} />
         </div>
       </div>

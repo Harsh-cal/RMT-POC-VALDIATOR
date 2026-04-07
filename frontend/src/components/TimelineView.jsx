@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { exportValidationReport } from "../services/api";
 
+import {ChevronDown, ChevronRight} from "lucide-react";
+
 const riskBadgeColor = {
   HIGH: "bg-red-50 border-red-100 text-red-600",
   MEDIUM: "bg-yellow-50 border-yellow-100 text-yellow-600",
@@ -195,7 +197,7 @@ export default function TimelineView({ releases }) {
                 </div>
               </div>
 
-              <span className="text-gray-400 ml-2">{expandedIdx === idx ? "▼" : "▶"}</span>
+              <span className="text-gray-400 ml-2">{expandedIdx === idx ? <ChevronDown strokeWidth={1} /> : <ChevronRight strokeWidth={1} />}</span>
             </div>
 
             {/* Expanded Details */}

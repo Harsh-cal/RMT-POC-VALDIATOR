@@ -96,7 +96,6 @@ export default function App() {
               {[
                 { icon: "◈", label: "Validation Results", key: "dashboard" },
                 { icon: "📊", label: "Release History",   key: "history"   },
-                { icon: "↓", label: "Export",        key: "export"    },
               ].map((item) => (
                 <button
                   key={item.key}
